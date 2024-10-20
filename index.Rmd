@@ -1,0 +1,202 @@
+---
+title: "M Carlin: First Deliverable"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r}
+setwd("C:/Users/CarlinML/DACSS-690R")
+getwd()
+```
+
+## FIRST DATASET - CLEANING
+# Social Media and Mental Health
+```{r}
+folder="dataFiles"
+fileName="Social_Media_and_Mental_Health.csv"
+fileToRead=file.path(folder,fileName)
+fileToRead
+SMMH_dirty=read.csv(fileToRead,check.names=F)
+View(SMMH_dirty)
+```
+
+# Remove leading and trailing spaces
+```{r}
+SMMH_dirty[,]=sapply(SMMH_dirty[,],trimws)
+SMMH_clean=SMMH_dirty[,]
+View(SMMH_clean)
+str(SMMH_clean)
+```
+
+# Fix column names
+```{r}
+library(magrittr)
+pattern='\\s+'
+names(SMMH_clean)%>%gsub(pattern,'_',.)
+```
+
+# Variable names are too cumbersome; decided to use the following code to rename all variables.
+```{r}
+library("dplyr")
+SMMH_clean <- rename(SMMH_clean, 
+  Age = "1. What is your age?",
+  Gender = "2. Gender",
+  Relationship_Status = "3. Relationship Status",
+  Occupation_Status = "4. Occupation Status",
+  Org_Affiliation = "5. What type of organizations are you affiliated with?",
+  Use_Social_Media = "6. Do you use social media?",
+  Social_Media_Platforms = "7. What social media platforms do you commonly use?",
+  Avg_Amt_Time = "8. What is the average time you spend on social media every day?",
+  Without_Purpose = "9. How often do you find yourself using Social media without a specific purpose?",
+  Distracted_By = "10. How often do you get distracted by Social media when you are busy doing something?",
+  Feel_Restless = "11. Do you feel restless if you haven't used Social media in a while?",
+  Easily_Distracted = "12. On a scale of 1 to 5, how easily distracted are you?",
+  Bothered_Worries = "13. On a scale of 1 to 5, how much are you bothered by worries?",
+  Difficult_Concentrate = "14. Do you find it difficult to concentrate on things?",
+  Compare_Others = "15. On a scale of 1-5, how often do you compare yourself to other successful people through the use of social media?",
+  Feel_Comparisons = "16. Following the previous question, how do you feel about these comparisons, generally speaking?",
+  Seek_Validation = "17. How often do you look to seek validation from features of social media?",
+  Feel_Depressed = "18. How often do you feel depressed or down?",
+  Interest_Fluctuate = "19. On a scale of 1 to 5, how frequently does your interest in daily activities fluctuate?",
+  Sleep_Issues = "20. On a scale of 1 to 5, how often do you face issues regarding sleep?")
+```
+
+# Run frequency tables of categorical variables to see if any recoding is needed
+```{r}
+table(SMMH_clean$Gender)
+SMMH_clean[SMMH_clean$Gender=='NB','Gender']='Non-binary'
+SMMH_clean[SMMH_clean$Gender=='Non binary','Gender']='Non-binary'
+SMMH_clean[SMMH_clean$Gender=='Nonbinary','Gender']='Non-binary'
+SMMH_clean[SMMH_clean$Gender=='unsure','Gender']='NA'
+SMMH_clean[SMMH_clean$Gender=='There are others???','Gender']='NA'
+table(SMMH_clean$Gender)
+```
+
+# Additional freq tables and mispelling correction
+```{r}
+table(SMMH_clean$Relationship_Status) # no cleaning needed
+table(SMMH_clean$Occupation_Status) # no cleaning needed
+table(SMMH_clean$Org_Affiliation) # clean up N/As
+SMMH_clean$Org_Affiliation <- gsub("Goverment", "Government",
+                              gsub("N/A", "NA", 
+                              gsub(", N/A", "", SMMH_clean$Org_Affiliation)))
+table(SMMH_clean$Org_Affiliation)
+```
+
+# Additional freq tables
+```{r}
+table(SMMH_clean$Use_Social_Media) # no cleaning needed
+table(SMMH_clean$Social_Media_Platforms) # may need to clean but would be easier if data was formatted differently
+table(SMMH_clean$Avg_Amt_Time) # no cleaning needed
+```
+
+# Save cleaned file to new folder
+```{r}
+folder <- "Second_Deliverable/DataCleanAndFormatted"
+
+# Check if the folder exists
+if (!dir.exists(folder)) {
+  # Create the folder
+  dir.create(folder)
+  write.csv(SMMH_clean,file.path(folder,"SMMH_clean.csv"),row.names = F)
+
+} else {
+  write.csv(SMMH_clean,file.path(folder,"SMMH_clean.csv"),row.names = F)}
+```
+
+## FIRST DATASET - FORMATTING
+```{r}
+
+```
+
+
+
+# SECOND DATASET - Clerkship grades; need to skip first line in excel file
+```{r}
+library(readxl)
+folder="dataFiles"
+fileName="UMassChan_ClerkshipGrades.xlsx"
+fileToRead=file.path(folder,fileName)
+fileToRead
+ClerkshipGrades_dirty=read_xlsx(fileToRead, skip=1)
+View(ClerkshipGrades_dirty)
+```
+
+# Remove leading and trailing spaces
+```{r}
+ClerkshipGrades_dirty[,]=sapply(ClerkshipGrades_dirty[,],trimws)
+ClerkshipGrades_clean=ClerkshipGrades_dirty[,]
+View(ClerkshipGrades_clean)
+str(ClerkshipGrades_clean)
+```
+
+# Remove dashes from two variable names
+```{r}
+ClerkshipGrades_clean <- rename(ClerkshipGrades_clean, 
+  NBME_Letter = `NBME-Written_Letter`,
+  NBME_Numeric = `NBME-Written_Numeric`)
+```
+
+# Run frequency tables of categorical variables to see if any recoding is needed
+```{r}
+table(ClerkshipGrades_clean$Final_Letter)
+ClerkshipGrades_clean <- ClerkshipGrades_clean %>%
+  mutate(Final_Letter2 = recode(Final_Letter,
+                                  "HH" = "High Honors",
+                                  "H" = "Honors",
+                                  "P" = "Pass",
+                                  "S" = "Satisfactory",
+                                  "F" = "Fail",
+                                  "I" = "Incomplete"))
+table(ClerkshipGrades_clean$Final_Letter2)
+
+table(ClerkshipGrades_clean$SPE_Letter)
+ClerkshipGrades_clean <- ClerkshipGrades_clean %>%
+  mutate(SPE_Letter2 = recode(SPE_Letter,
+                                  "HONORS" = "Honors"))
+table(ClerkshipGrades_clean$SPE_Letter2)
+
+table(ClerkshipGrades_clean$NBME_Letter)
+ClerkshipGrades_clean <- ClerkshipGrades_clean %>%
+  mutate(NBME_Letter2 = recode(NBME_Letter,
+                                  "HIGH HONORS" = "High Honors",
+                                  "HONORS" = "Honors",
+                                  "PASS" = "Pass"))
+table(ClerkshipGrades_clean$NBME_Letter2)
+
+table(ClerkshipGrades_clean$OSCE_Letter)
+ClerkshipGrades_clean <- ClerkshipGrades_clean %>%
+  mutate(OSCE_Letter2 = recode(OSCE_Letter2,
+                                  "HIGH HONORS" = "High Honors",
+                                  "HONORS" = "Honors",
+                                  "PASS" = "Pass"))
+table(ClerkshipGrades_clean$OSCE_Letter2)
+```
+
+# Save cleaned file to new folder
+```{r}
+folder <- "Second_Deliverable/DataCleanAndFormatted"
+
+# Check if the folder exists
+if (!dir.exists(folder)) {
+  # Create the folder
+  dir.create(folder)
+  write.csv(SMMH_clean,file.path(folder,"ClerkshipGrades_clean.csv"))
+
+} else {
+  write.csv(ClerkshipGrades_clean,file.path(folder,"ClerkshipGrades_clean.csv"))}
+```
+
+
+# THIRD DATASET - subset of crime data
+```{r}
+#install.packages("jsonlite")
+library(jsonlite)
+endPoint="https://data.lacity.org/resource/2nrs-mtv8.json"
+LA_Crime_data = fromJSON(endPoint)
+View(LA_Crime_data)
+write.csv(LA_Crime_data, "../dataFiles/Crime_Data_subset.csv")
+```
+
