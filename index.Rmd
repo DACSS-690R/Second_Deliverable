@@ -11,9 +11,7 @@ getwd()
 ```
 
 ## FIRST DATASET - CLEANING
-
 # Social Media and Mental Health
-
 ```{r}
 folder="dataFiles"
 fileName="Social_Media_and_Mental_Health.csv"
@@ -24,7 +22,6 @@ View(SMMH_dirty)
 ```
 
 # Remove leading and trailing spaces
-
 ```{r}
 SMMH_dirty[,]=sapply(SMMH_dirty[,],trimws)
 SMMH_clean=SMMH_dirty[,]
@@ -33,7 +30,6 @@ str(SMMH_clean)
 ```
 
 # Fix column names (variable names were too cumbersome when I tried replacing spaces with underscores, so I decided to use the following code to rename the variables instead)
-
 ```{r}
 library("dplyr")
 SMMH_clean <- rename(SMMH_clean, 
@@ -61,7 +57,6 @@ SMMH_clean <- rename(SMMH_clean,
 ```
 
 # Run frequency tables of categorical variables to see if any recoding is needed
-
 ```{r}
 table(SMMH_clean$Gender)
 SMMH_clean[SMMH_clean$Gender=='NB','Gender']='Non-binary'
@@ -73,7 +68,6 @@ table(SMMH_clean$Gender)
 ```
 
 # Additional freq tables and mispelling correction
-
 ```{r}
 table(SMMH_clean$RelStatus) # no cleaning needed
 table(SMMH_clean$OccStatus) # no cleaning needed
@@ -85,7 +79,6 @@ table(SMMH_clean$OrgAffil)
 ```
 
 # Additional freq tables
-
 ```{r}
 table(SMMH_clean$UseSocialMedia) # no cleaning needed
 table(SMMH_clean$Platforms) # may need to clean but would be easier if data was formatted differently
@@ -93,7 +86,6 @@ table(SMMH_clean$AmtTime) # no cleaning needed
 ```
 
 # Save cleaned file to new folder
-
 ```{r}
 folder <- "Second_Deliverable/DataCleanAndFormatted"
 
@@ -108,26 +100,52 @@ if (!dir.exists(folder)) {
 ```
 
 ## FIRST DATASET - FORMATTING
-
 ```{r}
 linkSMMH_clean='https://github.com/DACSS-690R/Second_Deliverable/raw/refs/heads/main/DataCleanAndFormatted/SMMH_clean.csv'
 SMMH_clean=read.csv(linkSMMH_clean)
 str(SMMH_clean)
 ```
 
+# Nominal variables - create new columns that are factors
 ```{r}
-SMMH_clean$Gender_label=factor(SMMH_clean$Gender,
-                                levels = c('Male','Female', 'Non-Binary'),
-                                labels = c('Male', 'Female', 'Non-Binary'))
-RENAME_Gender <- c("Male"=1 ,"Female"=2, "Non-Binary"=3)
-SMMH_clean$Gender_int=RENAME_Gender[SMMH_clean$Gender_label]
+SMMH_clean$Gender_label <- as.factor(SMMH_clean$Gender)
+SMMH_clean$RelStatus_label <- as.factor(SMMH_clean$RelStatus)
+SMMH_clean$OccStatus_label <- as.factor(SMMH_clean$OccStatus)
+SMMH_clean$OrgAffil_label <- as.factor(SMMH_clean$OrgAffil)
+SMMH_clean$UseSocialMedia_label <- as.factor(SMMH_clean$UseSocialMedia)
 str(SMMH_clean)
 ```
 
+# Ordinal 'amount of time' variable
 ```{r}
-SMMH_clean$RelStatus_label <- as.factor(SMMH_clean$RelStatus)
+# map for replacement: 1 the lowest # hours / 6 the highest # hours
+map_AmtTime <- c("Less than an Hour"=1, "Between 1 and 2 hours"=2,"Between 2 and 3 hours"=3, "Between 3 and 4 hours"=4, "Between 4 and 5 hours"=5, "More than 5 hours"=6)
+
+SMMH_clean$AmtTime_int=map_AmtTime[SMMH_clean$AmtTime]
+
+SMMH_clean$AmtTime_label <- factor(SMMH_clean$AmtTime_int, levels = seq(1,6),labels = c('1_Less than an Hour','2_Between 1 and 2 hours','3_Between 2 and 3 hours','4_Between 3 and 4 hours','5_Between 4 and 5 hours', '6_More than 5 hours'),ordered = TRUE)
 ```
 
+# Ordinal likert scale items
+```{r}
+theInts=seq(1,5) 
+theLabels=c('1_Strongly Disagree','2_Disagree','3_Neutral','4_Agree','5_Strongly Agree') 
+
+## function to format as ordinal
+FormatOrdinal=function(col) factor(col,
+                                   levels = theInts,
+                                   labels = theLabels,
+                                   ordered = TRUE)
+
+# create several columns as ordinal
+names <- c(10:21)
+SMMH_clean[names]=lapply(SMMH_clean[names],FormatOrdinal)
+
+# The current result:
+str(SMMH_clean)
+```
+
+# Save as RDS
 ```{r}
 folder = "DataCleanAndFormatted"
 
@@ -170,7 +188,6 @@ str(ClerkshipGrades_clean)
 ```
 
 # Remove dashes from two variable names
-
 ```{r}
 ClerkshipGrades_clean <- rename(ClerkshipGrades_clean, 
   NBME_Letter = `NBME-Written_Letter`,
@@ -178,8 +195,11 @@ ClerkshipGrades_clean <- rename(ClerkshipGrades_clean,
 ```
 
 # Run frequency tables of categorical variables to see if any recoding is needed
-
 ```{r}
+table(ClerkshipGrades_clean$Subject) # no cleaning needed
+table(ClerkshipGrades_clean$Catalog) # no cleaning needed 
+table(ClerkshipGrades_clean$Session) # no cleaning needed
+table(ClerkshipGrades_clean$Location) # no cleaning needed
 table(ClerkshipGrades_clean$Final_Letter)
 ClerkshipGrades_clean <- ClerkshipGrades_clean %>%
   mutate(Final_Letter2 = recode(Final_Letter,
@@ -191,7 +211,7 @@ ClerkshipGrades_clean <- ClerkshipGrades_clean %>%
                                   "I" = "Incomplete"))
 table(ClerkshipGrades_clean$Final_Letter2)
 
-table(ClerkshipGrades_clean$SPE_Letter)
+table(ClerkshipGrades_clean$SPE_Letter) 
 ClerkshipGrades_clean <- ClerkshipGrades_clean %>%
   mutate(SPE_Letter2 = recode(SPE_Letter,
                                   "HONORS" = "Honors"))
@@ -207,15 +227,30 @@ table(ClerkshipGrades_clean$NBME_Letter2)
 
 table(ClerkshipGrades_clean$OSCE_Letter)
 ClerkshipGrades_clean <- ClerkshipGrades_clean %>%
-  mutate(OSCE_Letter2 = recode(OSCE_Letter2,
+  mutate(OSCE_Letter2 = recode(OSCE_Letter,
                                   "HIGH HONORS" = "High Honors",
                                   "HONORS" = "Honors",
                                   "PASS" = "Pass"))
 table(ClerkshipGrades_clean$OSCE_Letter2)
 ```
 
-# Save cleaned file to new folder
+```{r}
+ClerkshipGrades_clean[!complete.cases(ClerkshipGrades_clean),] 
+ClerkshipGrades_clean[1,]
+colSums(is.na(apply(ClerkshipGrades_clean[,c(10,12,14,16)],2, as.numeric)))
 
+detectWrongNA= function(col){col[grep("[^\\d+\\.*\\d*]", col, perl=T,invert = F)]}
+badSymbolNum=sapply(ClerkshipGrades_clean[, c('Final_Numeric','SPE_Numeric','NBME_Numeric', 'OSCE_Numeric')],detectWrongNA)
+badSymbolNum_unlist=unlist(badSymbolNum)
+badSymbolNum_vector=unique(badSymbolNum_unlist)
+badSymbolNum_vector
+
+ClerkshipGrades_clean[, c('Final_Numeric','SPE_Numeric','NBME_Numeric', 'OSCE_Numeric')]=lapply(ClerkshipGrades_clean[, c('Final_Numeric','SPE_Numeric','NBME_Numeric', 'OSCE_Numeric')],function(col) ifelse((col %in% badSymbolNum_vector), NA, col))
+
+ClerkshipGrades_clean
+```
+
+# Save cleaned file to new folder
 ```{r}
 folder <- "Second_Deliverable/DataCleanAndFormatted"
 
@@ -232,6 +267,11 @@ if (!dir.exists(folder)) {
 # SECOND DATASET - FORMATTING
 
 ```{r}
+linkClerkshipGrades_clean='https://github.com/DACSS-690R/Second_Deliverable/raw/refs/heads/main/DataCleanAndFormatted/SMMH_clean.csv'
+SMMH_clean=read.csv(linkSMMH_clean)
+str(SMMH_clean)
+
+
 allCatCols=grep('level',names(ClerkshipGrades_clean))
 sapply(ClerkshipGrades_clean[,allCatCols],unique)
 
