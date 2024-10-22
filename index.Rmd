@@ -18,7 +18,7 @@ fileName="Social_Media_and_Mental_Health.csv"
 fileToRead=file.path(folder,fileName)
 fileToRead
 SMMH_dirty=read.csv(fileToRead,check.names=F)
-View(SMMH_dirty)
+SMMH_dirty
 ```
 
 # Remove leading and trailing spaces
@@ -131,17 +131,14 @@ SMMH_clean$AmtTime_label <- factor(SMMH_clean$AmtTime_int, levels = seq(1,6),lab
 theInts=seq(1,5) 
 theLabels=c('1_Strongly Disagree','2_Disagree','3_Neutral','4_Agree','5_Strongly Agree') 
 
-## function to format as ordinal
 FormatOrdinal=function(col) factor(col,
                                    levels = theInts,
                                    labels = theLabels,
                                    ordered = TRUE)
 
-# create several columns as ordinal
 names <- c(10:21)
 SMMH_clean[names]=lapply(SMMH_clean[names],FormatOrdinal)
 
-# The current result:
 str(SMMH_clean)
 ```
 
@@ -161,13 +158,8 @@ if (!dir.exists(folder)) {
 }
 ```
 
-```{r}
-SMMH_formatted=readRDS(file.path(folder,"SMMH_formatted.RDS"))
-str(SMMH_formatted)
-```
 
 # SECOND DATASET - Clerkship grades; need to skip first line in excel file
-
 ```{r}
 library(readxl)
 folder="dataFiles"
@@ -175,11 +167,10 @@ fileName="UMassChan_ClerkshipGrades.xlsx"
 fileToRead=file.path(folder,fileName)
 fileToRead
 ClerkshipGrades_dirty=read_xlsx(fileToRead, skip=1)
-View(ClerkshipGrades_dirty)
+ClerkshipGrades_dirty
 ```
 
 # Remove leading and trailing spaces
-
 ```{r}
 ClerkshipGrades_dirty[,]=sapply(ClerkshipGrades_dirty[,],trimws)
 ClerkshipGrades_clean=ClerkshipGrades_dirty[,]
@@ -234,6 +225,7 @@ ClerkshipGrades_clean <- ClerkshipGrades_clean %>%
 table(ClerkshipGrades_clean$OSCE_Letter2)
 ```
 
+# Cleaning numeric variables
 ```{r}
 ClerkshipGrades_clean[!complete.cases(ClerkshipGrades_clean),] 
 ClerkshipGrades_clean[1,]
@@ -265,31 +257,42 @@ if (!dir.exists(folder)) {
 ```
 
 # SECOND DATASET - FORMATTING
-
 ```{r}
-linkClerkshipGrades_clean='https://github.com/DACSS-690R/Second_Deliverable/raw/refs/heads/main/DataCleanAndFormatted/SMMH_clean.csv'
-SMMH_clean=read.csv(linkSMMH_clean)
-str(SMMH_clean)
-
-
-allCatCols=grep('level',names(ClerkshipGrades_clean))
-sapply(ClerkshipGrades_clean[,allCatCols],unique)
-
-# maps for replacement: 1 the worst / 5 the best
-map_Final <- c("Male"=1, "Female"=3,"Non-Binary"=5)
-map_SPE <- c("Male"=1, "Female"=3,"Non-Binary"=5)
-map_NBME <- c("Male"=1, "Female"=3,"Non-Binary"=5)
-map_OSCE <- c("Male"=1, "Female"=3,"Non-Binary"=5)
-
-
-ClerkshipGrades_clean$Gender_int=map_Final[ClerkshipGrades_clean$Final_level]
-ClerkshipGrades_clean$SPE_int=map_SPE[ClerkshipGrades_clean$SPE_level]
-ClerkshipGrades_clean$NBME_int=map_NBME[ClerkshipGrades_clean$NBME_level]
-ClerkshipGrades_clean$OSCE_int=map_NBME[ClerkshipGrades_clean$OSCE_level]
+linkClerkshipGrades_clean='https://github.com/DACSS-690R/Second_Deliverable/raw/refs/heads/main/DataCleanAndFormatted/ClerkshipGrades_clean.csv'
+ClerkshipGrades_clean=read.csv(linkClerkshipGrades_clean)
+str(ClerkshipGrades_clean)
 ```
 
-# THIRD DATASET - subset of crime data
+# Change all Letter Grade columns to uppercase, and conver to ordered factors
+```{r}
 
+ClerkshipGrades_clean[,16:19] <- lapply(ClerkshipGrades_clean[,16:19],toupper)
+
+
+Likert_cols <- c(16:19)
+ClerkshipGrades_clean[,Likert_cols] <- lapply(ClerkshipGrades_clean[,Likert_cols] , factor, ordered = TRUE, levels = c("FAIL", "INCOMPLETE", "SATISFACTORY", "PASS", "HONORS", "HIGH HONORS"))
+str(ClerkshipGrades_clean)
+```
+
+# Save as RDS
+```{r}
+folder = "DataCleanAndFormatted"
+
+# Check if the folder exists
+if (!dir.exists(folder)) {
+  # Create the folder
+  dir.create(folder)
+  saveRDS(ClerkshipGrades_clean,file.path(folder,"
+                               ClerkshipGrades_formatted.RDS"))
+
+} else {
+  saveRDS(ClerkshipGrades_clean,file.path(folder,"ClerkshipGrades_formatted.RDS"))
+
+}
+```
+
+
+# THIRD DATASET - subset of crime data
 ```{r}
 #install.packages("jsonlite")
 library(jsonlite)
