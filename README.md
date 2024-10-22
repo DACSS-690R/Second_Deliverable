@@ -1,7 +1,7 @@
 # Michele Carlin's Second Deliverable
 
 ## Repo name: 
-DACSS-690R
+DACSS-690R/Second_Deliverable
 
 ## File containing R code for reading in datasets: 
 index.Rmd
