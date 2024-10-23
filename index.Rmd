@@ -13,14 +13,11 @@ getwd()
 ```
 
 ## FIRST DATASET - CLEANING
+
 # Social Media and Mental Health
 
 ```{r}
-folder="../dataFiles"
-fileName="Social_Media_and_Mental_Health.csv"
-fileToRead=file.path(folder,fileName)
-fileToRead
-SMMH_dirty=read.csv(fileToRead,check.names=F)
+SMMH_dirty <- read.csv("https://github.com/DACSS-690R/First_Deliverable/raw/refs/heads/main/dataFiles/Social_Media_and_Mental_Health.csv",check.names=F)
 SMMH_dirty
 ```
 
@@ -59,6 +56,13 @@ SMMH_clean <- rename(SMMH_clean,
   Interest = "19. On a scale of 1 to 5, how frequently does your interest in daily activities fluctuate?",
   Sleep = "20. On a scale of 1 to 5, how often do you face issues regarding sleep?")
 
+```
+
+# Format Timestamp variable to be a date column
+
+```{r}
+SMMH_clean$Timestamp=strptime(SMMH_clean$Timestamp, "%m/%d/%Y %H:%M:%S")
+str(SMMH_clean)
 ```
 
 # Run frequency tables of categorical variables to see if any recoding is needed
@@ -173,15 +177,17 @@ if (!dir.exists(folder)) {
 ```
 
 ## SECOND DATASET - CLEANING
+
 # Clerkship grades; need to skip first line in excel file
 
 ```{r}
 library(readxl)
-folder="../dataFiles"
-fileName="UMassChan_ClerkshipGrades.xlsx"
-fileToRead=file.path(folder,fileName)
-fileToRead
-ClerkshipGrades_dirty=read_xlsx(fileToRead, skip=1)
+
+destfile <- path.expand("ClerkshipGrades.xlsx")
+url      <- paste0("https://github.com/DACSS-690R/First_Deliverable/raw/refs/heads/main/dataFiles/UMassChan_ClerkshipGrades.xlsx")
+
+download.file(url, destfile = destfile, mode = "wb")
+ClerkshipGrades_dirty <- read_xlsx(destfile, skip=1)
 ClerkshipGrades_dirty
 ```
 
