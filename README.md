@@ -3,8 +3,8 @@
 ## Repo name: 
 DACSS-690R/Second_Deliverable
 
-## File containing R code for reading in datasets: 
-index.Rmd
+## File containing R code for reading in datasets can be found here: 
+[index.Rmd](https://github.com/DACSS-690R/Second_Deliverable/blob/main/index.html)
 
 ## Datasets cleaned and formatted in repo:
 1. Social Media and Mental Health<br>
