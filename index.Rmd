@@ -1,19 +1,22 @@
 ---
-title: "M Carlin: First Deliverable"
-output: html_notebook
-editor_options: 
+title: 'M Carlin: Second Deliverable'
+output:
+  html_document:
+    df_print: paged
+editor_options:
   chunk_output_type: console
 ---
 
 ```{r}
-setwd("C:/Users/CarlinML/DACSS-690R")
+setwd("C:/Users/CarlinML/DACSS-690R/Second_Deliverable")
 getwd()
 ```
 
 ## FIRST DATASET - CLEANING
 # Social Media and Mental Health
+
 ```{r}
-folder="dataFiles"
+folder="../dataFiles"
 fileName="Social_Media_and_Mental_Health.csv"
 fileToRead=file.path(folder,fileName)
 fileToRead
@@ -22,6 +25,7 @@ SMMH_dirty
 ```
 
 # Remove leading and trailing spaces
+
 ```{r}
 SMMH_dirty[,]=sapply(SMMH_dirty[,],trimws)
 SMMH_clean=SMMH_dirty[,]
@@ -30,6 +34,7 @@ str(SMMH_clean)
 ```
 
 # Fix column names (variable names were too cumbersome when I tried replacing spaces with underscores, so I decided to use the following code to rename the variables instead)
+
 ```{r}
 library("dplyr")
 SMMH_clean <- rename(SMMH_clean, 
@@ -57,6 +62,7 @@ SMMH_clean <- rename(SMMH_clean,
 ```
 
 # Run frequency tables of categorical variables to see if any recoding is needed
+
 ```{r}
 table(SMMH_clean$Gender)
 SMMH_clean[SMMH_clean$Gender=='NB','Gender']='Non-binary'
@@ -68,6 +74,7 @@ table(SMMH_clean$Gender)
 ```
 
 # Additional freq tables and mispelling correction
+
 ```{r}
 table(SMMH_clean$RelStatus) # no cleaning needed
 table(SMMH_clean$OccStatus) # no cleaning needed
@@ -79,6 +86,7 @@ table(SMMH_clean$OrgAffil)
 ```
 
 # Additional freq tables
+
 ```{r}
 table(SMMH_clean$UseSocialMedia) # no cleaning needed
 table(SMMH_clean$Platforms) # may need to clean but would be easier if data was formatted differently
@@ -86,8 +94,9 @@ table(SMMH_clean$AmtTime) # no cleaning needed
 ```
 
 # Save cleaned file to new folder
+
 ```{r}
-folder <- "Second_Deliverable/DataCleanAndFormatted"
+folder <- "DataCleanAndFormatted"
 
 # Check if the folder exists
 if (!dir.exists(folder)) {
@@ -100,6 +109,7 @@ if (!dir.exists(folder)) {
 ```
 
 ## FIRST DATASET - FORMATTING
+
 ```{r}
 linkSMMH_clean='https://github.com/DACSS-690R/Second_Deliverable/raw/refs/heads/main/DataCleanAndFormatted/SMMH_clean.csv'
 SMMH_clean=read.csv(linkSMMH_clean)
@@ -107,6 +117,7 @@ str(SMMH_clean)
 ```
 
 # Nominal variables - create new columns that are factors
+
 ```{r}
 SMMH_clean$Gender_label <- as.factor(SMMH_clean$Gender)
 SMMH_clean$RelStatus_label <- as.factor(SMMH_clean$RelStatus)
@@ -117,6 +128,7 @@ str(SMMH_clean)
 ```
 
 # Ordinal 'amount of time' variable
+
 ```{r}
 # map for replacement: 1 the lowest # hours / 6 the highest # hours
 map_AmtTime <- c("Less than an Hour"=1, "Between 1 and 2 hours"=2,"Between 2 and 3 hours"=3, "Between 3 and 4 hours"=4, "Between 4 and 5 hours"=5, "More than 5 hours"=6)
@@ -127,6 +139,7 @@ SMMH_clean$AmtTime_label <- factor(SMMH_clean$AmtTime_int, levels = seq(1,6),lab
 ```
 
 # Ordinal likert scale items
+
 ```{r}
 theInts=seq(1,5) 
 theLabels=c('1_Strongly Disagree','2_Disagree','3_Neutral','4_Agree','5_Strongly Agree') 
@@ -143,6 +156,7 @@ str(SMMH_clean)
 ```
 
 # Save as RDS
+
 ```{r}
 folder = "DataCleanAndFormatted"
 
@@ -158,11 +172,12 @@ if (!dir.exists(folder)) {
 }
 ```
 
+## SECOND DATASET - CLEANING
+# Clerkship grades; need to skip first line in excel file
 
-# SECOND DATASET - Clerkship grades; need to skip first line in excel file
 ```{r}
 library(readxl)
-folder="dataFiles"
+folder="../dataFiles"
 fileName="UMassChan_ClerkshipGrades.xlsx"
 fileToRead=file.path(folder,fileName)
 fileToRead
@@ -171,6 +186,7 @@ ClerkshipGrades_dirty
 ```
 
 # Remove leading and trailing spaces
+
 ```{r}
 ClerkshipGrades_dirty[,]=sapply(ClerkshipGrades_dirty[,],trimws)
 ClerkshipGrades_clean=ClerkshipGrades_dirty[,]
@@ -179,6 +195,7 @@ str(ClerkshipGrades_clean)
 ```
 
 # Remove dashes from two variable names
+
 ```{r}
 ClerkshipGrades_clean <- rename(ClerkshipGrades_clean, 
   NBME_Letter = `NBME-Written_Letter`,
@@ -186,6 +203,7 @@ ClerkshipGrades_clean <- rename(ClerkshipGrades_clean,
 ```
 
 # Run frequency tables of categorical variables to see if any recoding is needed
+
 ```{r}
 table(ClerkshipGrades_clean$Subject) # no cleaning needed
 table(ClerkshipGrades_clean$Catalog) # no cleaning needed 
@@ -226,6 +244,7 @@ table(ClerkshipGrades_clean$OSCE_Letter2)
 ```
 
 # Cleaning numeric variables
+
 ```{r}
 ClerkshipGrades_clean[!complete.cases(ClerkshipGrades_clean),] 
 ClerkshipGrades_clean[1,]
@@ -243,8 +262,9 @@ ClerkshipGrades_clean
 ```
 
 # Save cleaned file to new folder
+
 ```{r}
-folder <- "Second_Deliverable/DataCleanAndFormatted"
+folder <- "DataCleanAndFormatted"
 
 # Check if the folder exists
 if (!dir.exists(folder)) {
@@ -257,6 +277,7 @@ if (!dir.exists(folder)) {
 ```
 
 # SECOND DATASET - FORMATTING
+
 ```{r}
 linkClerkshipGrades_clean='https://github.com/DACSS-690R/Second_Deliverable/raw/refs/heads/main/DataCleanAndFormatted/ClerkshipGrades_clean.csv'
 ClerkshipGrades_clean=read.csv(linkClerkshipGrades_clean)
@@ -264,6 +285,7 @@ str(ClerkshipGrades_clean)
 ```
 
 # Change all Letter Grade columns to uppercase, and conver to ordered factors
+
 ```{r}
 
 ClerkshipGrades_clean[,16:19] <- lapply(ClerkshipGrades_clean[,16:19],toupper)
@@ -275,6 +297,7 @@ str(ClerkshipGrades_clean)
 ```
 
 # Save as RDS
+
 ```{r}
 folder = "DataCleanAndFormatted"
 
@@ -291,13 +314,13 @@ if (!dir.exists(folder)) {
 }
 ```
 
-
 # THIRD DATASET - subset of crime data
+
 ```{r}
 #install.packages("jsonlite")
-library(jsonlite)
-endPoint="https://data.lacity.org/resource/2nrs-mtv8.json"
-LA_Crime_data = fromJSON(endPoint)
-View(LA_Crime_data)
-write.csv(LA_Crime_data, "../dataFiles/Crime_Data_subset.csv")
+#library(jsonlite)
+#endPoint="https://data.lacity.org/resource/2nrs-mtv8.json"
+#LA_Crime_data = fromJSON(endPoint)
+#View(LA_Crime_data)
+#write.csv(LA_Crime_data, "../dataFiles/Crime_Data_subset.csv")
 ```
