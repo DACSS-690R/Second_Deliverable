@@ -4,7 +4,7 @@
 DACSS-690R/Second_Deliverable
 
 ## File containing R code for reading in datasets can be found here: 
-[index.html](https://github.com/DACSS-690R/Second_Deliverable/blob/main/index.html)
+[index.html](https://github.com/DACSS-690R/Second_Deliverable)
 
 ## Datasets cleaned and formatted in repo:
 1. Social Media and Mental Health<br>
