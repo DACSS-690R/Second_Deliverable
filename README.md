@@ -3,7 +3,7 @@
 ## Repo name: 
 DACSS-690R/Second_Deliverable
 
-## File containing R code for reading in datasets can be found [HERE](https://github.com/DACSS-690R/Second_Deliverable](https://dacss-690r.github.io/Second_Deliverable/)
+## File containing R code for reading in datasets can be found [HERE](https://dacss-690r.github.io/Second_Deliverable/)
 
 ## Datasets cleaned and formatted in repo:
 1. Social Media and Mental Health<br>
