@@ -33,7 +33,7 @@ str(SMMH_clean)
 # Fix column names (variable names were too cumbersome when I tried replacing spaces with underscores, so I decided to use the following code to rename the variables instead)
 
 ```{r}
-library("dplyr")
+library(dplyr)
 SMMH_clean <- rename(SMMH_clean, 
   Age = "1. What is your age?",
   Gender = "2. Gender",
@@ -290,7 +290,7 @@ ClerkshipGrades_clean=read.csv(linkClerkshipGrades_clean)
 str(ClerkshipGrades_clean)
 ```
 
-# Change all Letter Grade columns to uppercase, and conver to ordered factors
+# Change all Letter Grade columns to uppercase, and convert to ordered factors
 
 ```{r}
 
@@ -325,22 +325,174 @@ if (!dir.exists(folder)) {
 # Subset of crime data
 
 ```{r}
-library(readxl)
-
-destfile <- path.expand("ClerkshipGrades.xlsx")
-url      <- paste0("https://github.com/DACSS-690R/First_Deliverable/raw/refs/heads/main/dataFiles/UMassChan_ClerkshipGrades.xlsx")
-
-download.file(url, destfile = destfile, mode = "wb")
-ClerkshipGrades_dirty <- read_xlsx(destfile, skip=1)
-ClerkshipGrades_dirty
+Crime_dirty <- read.csv("https://github.com/DACSS-690R/First_Deliverable/raw/refs/heads/main/dataFiles/Crime_Data_from_2020_to_Present_subset.csv",check.names=F)
+Crime_dirty
 ```
+
+# Remove leading/trailing spaces and drop first column
+
+```{r}
+Crime_dirty[,]=sapply(Crime_dirty[,],trimws)
+Crime_clean=Crime_dirty[,]
+Crime_clean=Crime_clean[,2:28]
+View(Crime_clean)
+str(Crime_clean)
+```
+
+```{r}
+Crime_clean <- rename(Crime_clean, 
+  RecordNumber = "dr_no",
+  DateReported = "date_rptd",
+  DateOccurred = "date_occ",
+  TimeOccurred = "time_occ",
+  GeographicAreaID = "area",
+  GeographicAreaName = "area_name",
+  GeographicSubAreaID = "rpt_dist_no",
+  Part1_2 = "part_1_2",
+  CrimeCode = "crm_cd",
+  CrimeCodeDesc = "crm_cd_desc",
+  VictimAge = "vict_age",
+  VictimSex = "vict_sex",
+  VictimEthnicity = "vict_descent",
+  CrimeSceneCode = "premis_cd",
+  CrimeSceneDesc = "premis_desc",
+  CaseStatus = "status",
+  CaseStatusDesc = "status_desc",
+  CrimeCode1 = "crm_cd_1",
+  CrimeCode2 = "crm_cd_2",
+  AddressCrime = "location",
+  LatitudeCrime = "lat",
+  LongitudeCrime = "lon",
+  CriminalCharacteristicCodes = "mocodes",
+  WeaponUsedCode = "weapon_used_cd",
+  WeaponUsedDesc = "weapon_desc",
+  CrossStreet = "cross_street",
+  CrimeCode3 = "crm_cd_3")
+
+```
+
+# Format DateReported and DateOccurred variables to be date columns
+
+FORMAT TIME!!! format(strptime(Crime_clean$TimeOccurred, '%H%M'), '%I:%M %p')
 
 
 ```{r}
-#install.packages("jsonlite")
-#library(jsonlite)
-#endPoint="https://data.lacity.org/resource/2nrs-mtv8.json"
-#LA_Crime_data = fromJSON(endPoint)
-#View(LA_Crime_data)
-#write.csv(LA_Crime_data, "../dataFiles/Crime_Data_subset.csv")
+Crime_clean$DateReported=strptime(Crime_clean$DateReported, "%Y-%m-%dT%H:%M:%S")
+Crime_clean$DateOccurred=strptime(Crime_clean$DateOccurred, "%Y-%m-%dT%H:%M:%S")
+str(Crime_clean)
+```
+
+# Run frequency tables of all variables to see if any cleaning is needed
+
+```{r}
+table(Crime_clean$GeographicAreaID) #no cleaning needed
+table(Crime_clean$GeographicAreaName) #no cleaning needed
+table(Crime_clean$GeographicSubAreaID) #no cleaning needed
+table(Crime_clean$Part1_2) #no cleaning needed
+table(Crime_clean$CrimeCode) #no cleaning needed
+table(Crime_clean$CrimeCodeDesc) #no cleaning needed
+table(Crime_clean$VictimeAge) #no cleaning needed
+table(Crime_clean$VictimSex) #no cleaning needed
+table(Crime_clean$VictimEthnicity) #no cleaning needed
+table(Crime_clean$CrimeSceneCode) #no cleaning needed
+table(Crime_clean$CrimeSceneDesc) #no cleaning needed
+table(Crime_clean$CaseStatus) #no cleaning needed
+table(Crime_clean$CaseStatusDesc) #no cleaning needed
+table(Crime_clean$CrimeCode1) #no cleaning needed
+table(Crime_clean$CrimeCode2) #no cleaning needed
+table(Crime_clean$AddressCrime) #no cleaning needed
+table(Crime_clean$LatitudeCrime) #no cleaning needed
+table(Crime_clean$LongitudeCrime) #no cleaning needed
+table(Crime_clean$CriminalCharacteristicCodes) #no cleaning needed
+table(Crime_clean$WeaponUsedCode) #no cleaning needed
+table(Crime_clean$WeaponUsedDesc) #no cleaning needed
+table(Crime_clean$CrossStreet) #no cleaning needed
+table(Crime_clean$CrimeCode3) #no cleaning needed
+```
+
+# Save cleaned file to new folder
+
+```{r}
+folder <- "DataCleanAndFormatted"
+
+# Check if the folder exists
+if (!dir.exists(folder)) {
+  # Create the folder
+  dir.create(folder)
+  write.csv(Crime_clean,file.path(folder,"Crime_clean.csv"))
+
+} else {
+  write.csv(Crime_clean,file.path(folder,"Crime_clean.csv"))}
+```
+
+# THIRD DATASET - FORMATTING
+
+# remove extra blank spaces from AddressCrime; save as new column
+
+```{r}
+Crime_clean$AddressCrime
+Crime_clean$AddressCrime_new <- gsub("\\s+", " ", Crime_clean$AddressCrime)
+Crime_clean$AddressCrime_new
+```
+
+# CriminalCharacteristicCodes contains multiple codes in one column separated by spaces; split into multiple columns
+
+```{r}
+Crime_clean$CriminalCharacteristicCodes_new =  Crime_clean$CriminalCharacteristicCodes
+
+library(tidyverse)
+cols <- paste0("Code_", 1:10)
+Crime_clean2 <- Crime_clean %>% separate(CriminalCharacteristicCodes_new, sep = " ", into = cols )
+View(Crime_clean2)
+```
+
+# Adding labels to gender variable
+
+```{r}
+Crime_clean2 <- Crime_clean2 %>%
+  mutate(VictimSex = fct_recode(VictimSex, 
+                                 "Male" = "M", 
+                                 "Female" = "F", 
+                                 "Unknown" = "X")) 
+str(Crime_clean2)
+```
+
+# Adding labels to ethnicity variable
+
+```{r}
+Crime_clean2 <- Crime_clean2 %>%
+  mutate(VictimEthnicity = fct_recode(VictimEthnicity,
+                                 "Other Asian" = "A", 
+                                 "Black" = "B", 
+                                 "Chinese" = "C",
+                                 "Filipino" = "F",
+                                 "Hispanic/Latin/Mexican" = "H",
+                                 "American Indian/Alaskan Native" = "I",
+                                 "Japanese" = "J",
+                                 "Korean" = "K",
+                                 "Other" = "O",
+                                 "Pacific Islander" = "P",
+                                 "Samoan" = "S",
+                                 "Vietnamese" = "V",
+                                 "White" = "W",
+                                 "Unknown" = "X")) 
+str(Crime_clean2)
+```
+
+# Save as RDS
+
+```{r}
+folder = "DataCleanAndFormatted"
+
+# Check if the folder exists
+if (!dir.exists(folder)) {
+  # Create the folder
+  dir.create(folder)
+  saveRDS(Crime_clean2,file.path(folder,"
+                               Crime_formatted.RDS"))
+
+} else {
+  saveRDS(Crime_clean2,file.path(folder,"Crime_formatted.RDS"))
+
+}
 ```

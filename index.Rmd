@@ -265,6 +265,7 @@ badSymbolNum_vector
 ClerkshipGrades_clean[, c('Final_Numeric','SPE_Numeric','NBME_Numeric', 'OSCE_Numeric')]=lapply(ClerkshipGrades_clean[, c('Final_Numeric','SPE_Numeric','NBME_Numeric', 'OSCE_Numeric')],function(col) ifelse((col %in% badSymbolNum_vector), NA, col))
 
 ClerkshipGrades_clean
+str(ClerkshipGrades_clean)
 ```
 
 # Save cleaned file to new folder
@@ -294,10 +295,10 @@ str(ClerkshipGrades_clean)
 
 ```{r}
 
-ClerkshipGrades_clean[,16:19] <- lapply(ClerkshipGrades_clean[,16:19],toupper)
+ClerkshipGrades_clean[,19:22] <- lapply(ClerkshipGrades_clean[,19:22],toupper)
 
 
-Likert_cols <- c(16:19)
+Likert_cols <- c(19:22)
 ClerkshipGrades_clean[,Likert_cols] <- lapply(ClerkshipGrades_clean[,Likert_cols] , factor, ordered = TRUE, levels = c("FAIL", "INCOMPLETE", "SATISFACTORY", "PASS", "HONORS", "HIGH HONORS"))
 str(ClerkshipGrades_clean)
 ```
