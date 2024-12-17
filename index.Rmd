@@ -286,7 +286,7 @@ if (!dir.exists(folder)) {
 # SECOND DATASET - FORMATTING
 
 ```{r}
-linkClerkshipGrades_clean='https://github.com/DACSS-690R/Second_Deliverable/raw/refs/heads/main/DataCleanAndFormatted/ClerkshipGrades_clean.csv'
+linkClerkshipGrades_clean='https://github.com/DACSS-690R/Second_Deliverable/raw/main/DataCleanAndFormatted/ClerkshipGrades_clean.csv'
 ClerkshipGrades_clean=read.csv(linkClerkshipGrades_clean)
 str(ClerkshipGrades_clean)
 ```
